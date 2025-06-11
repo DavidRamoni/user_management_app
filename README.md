@@ -1,64 +1,70 @@
 # User Management App
 
-A simple Python web API to manage users using Flask and SQLite3.
+Simple **User Management** web app built with Python and Flask, using SQLite3 database.  
+Demonstrates basic **CRUD** operations with clean, object-oriented code and error handling.
+
+---
 
 ## Features
 
-- Add new users via API
-- List all users
-- Uses OOP and clean code
-- Handles errors with try/except
-- Easy to understand and extend
+- List all users (GET /users)  
+- Add new user (POST /users) with JSON body (`name` and `email`)  
+- Uses SQLite3 for storage  
+- Error handling with try-except  
+- Clear comments and code easy to understand  
+- Example full-stack Python project  
+
+---
 
 ## Requirements
 
-- Python 3
-- Flask
+- Python 3.7+  
+- Flask  
+- SQLite3  
 
-##  How to run
+---
 
-1. Clone the repository or download the files.
+## Installation & Running
 
-2. Install dependencies:
-       pip install flask
+1. Clone repository:
 
-3. Run the application:
-       python app.py
+bash
+git clone https://github.com/DavidRamoni/user_management_app.git
 
+2. Change directory:
+cd user_management_app
 
-## API Endpoints
+3. Install dependencies:
+pip install -r requirements.txt
 
-### POST `/users`
+## How to Run
 
-Create a new user.
+Run the application with:
+python app.py
+The server will start on http://127.0.0.1:5000.
 
-Use **Postman** or a similar tool.
-
-**Body (JSON):**
-```json
-{
-"name": "John Doe",
-"email": "john@example.com"
-}
-
-RESPONSE:
-
-{
-  "message": "User created",
-  "id": 1
-}
-
+# API Endpoints
 GET /users
+Returns a list of all users in JSON format.
 
-List all registered users.
+POST /users
+Adds a new user. Requires a JSON body with "name" and "email" fields.
 
-Open this in your browser:
-http://127.0.0.1:5000/users
+# Code Structure
+app.py - Main Flask application file
 
-Technologies:
-Python
-Flask
-SQLite3
+database.py - Handles SQLite3 database connection and operations
 
-Author
-Made by [David Ramoni]
+models.py - Defines User class and CRUD methods
+
+README.md - Project documentation
+
+# Notes
+The code is written in English, with detailed comments and structured for easy understanding.
+
+Feel free to clone and modify it for your own projects.
+
+# Contact
+If you want to collaborate or have questions, feel free to contact me via GitHub or email.
+
+Thank you for checking out my project!
