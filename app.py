@@ -1,75 +1,53 @@
-# app.py
 from flask import Flask, request, jsonify
-import sqlite3
+from database import initialize_database
+from models import User
 
+# Initialize Flask application
 app = Flask(__name__)
 
-# Class for managing the database
-class Database:
-    def __init__(self, db_name="users.db"):
-        self.db_name = db_name
-        self.create_users_table()
+# Create the users table if it does not exist
+initialize_database()
 
-    def create_users_table(self):
-        try:
-            with sqlite3.connect(self.db_name) as conn:
-                cursor = conn.cursor()
-                cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS users (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        name TEXT NOT NULL,
-                        email TEXT NOT NULL UNIQUE
-                    )
-                ''')
-                conn.commit()
-        except Exception as e:
-            print("Error creating table:", e)
-
-    def add_user(self, name, email):
-        try:
-            with sqlite3.connect(self.db_name) as conn:
-                cursor = conn.cursor()
-                cursor.execute('INSERT INTO users (name, email) VALUES (?, ?)', (name, email))
-                conn.commit()
-                return cursor.lastrowid
-        except sqlite3.IntegrityError:
-            return None
-        except Exception as e:
-            print("Error inserting user:", e)
-            return None
-
-    def get_all_users(self):
-        try:
-            with sqlite3.connect(self.db_name) as conn:
-                cursor = conn.cursor()
-                cursor.execute('SELECT * FROM users')
-                return cursor.fetchall()
-        except Exception as e:
-            print("Error retrieving users:", e)
-            return []
-
-db = Database()
+@app.route('/users', methods=['GET'])
+def get_users():
+    """
+    GET /users
+    Returns the list of all users in JSON format.
+    """
+    try:
+        users = User.get_all_users()
+        return jsonify(users), 200
+    except Exception as error:
+        return jsonify({"error": f"Failed to get users: {str(error)}"}), 500
 
 @app.route('/users', methods=['POST'])
 def create_user():
-    data = request.get_json()
-    name = data.get('name')
-    email = data.get('email')
+    """
+    POST /users
+    Creates a new user from JSON input (name and email).
+    """
+    try:
+        data = request.get_json()
 
-    if not name or not email:
-        return jsonify({"error": "Name and email are required"}), 400
+        # Extract name and email from request
+        name = data.get('name')
+        email = data.get('email')
 
-    user_id = db.add_user(name, email)
-    if user_id:
-        return jsonify({"message": "User created", "id": user_id}), 201
-    else:
-        return jsonify({"error": "User could not be created (duplicate or error)"}), 400
+        # Validate required fields
+        if not name or not email:
+            return jsonify({"error": "Both name and email are required."}), 400
 
-@app.route('/users', methods=['GET'])
-def list_users():
-    users = db.get_all_users()
-    users_list = [{"id": u[0], "name": u[1], "email": u[2]} for u in users]
-    return jsonify(users_list)
+        # Insert new user
+        result = User.create_user(name, email)
 
-if __name__ == "__main__":
+        if "message" in result:
+            return jsonify(result), 201
+        else:
+            return jsonify(result), 400
+
+    except Exception as error:
+        return jsonify({"error": f"Failed to create user: {str(error)}"}), 500
+
+# Run the application
+if __name__ == '__main__':
     app.run(debug=True)
